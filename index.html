@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: 'Fuzzy Bubbles', serif; background-color: #f5f0e6; margin: 0; padding: 0; }
+      .top { display: flex; justify-content: space-between; align-items: center; }
+      h3 { color: #333; font-size: 3.5rem; margin: 20px 0;  }
+      .container { max-width: 100%; margin: auto; padding: 30px; }
+      h1 { color: #333; font-size: 5.2rem; margin: 20px 0; }
+      h4 { font-size: 3rem; margin: 0; }
+      .task-inputs { display: flex; flex-direction: column; gap: 10px; padding: 10px; }
+      input, select, button { padding: 12px; border-radius: 8px; border: 1px solid #ddd; font-size: 1rem; }
+      button { background-color: #add8e6; color: black; border: none; cursor: pointer; padding: 25px; font-size: 1.3rem; box-shadow: 2px 2px 10px #0000004d;}
+      .tasks-container { margin-top: 20px; padding: 10px; }
+      .date-section { margin-bottom: 20px; }
+      .date-title { font-size: 2.5rem; font-weight: 700; color: #555; margin-bottom: 10px; margin-left: 6px; }
+      .task { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        gap: 10px; 
+        padding: 30px; 
+        border-radius: 25px; 
+        margin-bottom: 20px; 
+        font-size: 1rem; 
+        color: #333; 
+        box-shadow: 2px 2px 10px #0000004d;
+      }
+      .babyblue { background-color: #add8e6; }
+      .babypink { background-color: #ffb6c1; }
+      .lightyellow { background-color: #fffacd; }
+      .icon { width: 40px; height: 40px; border-radius: 50%; background-color: white; display: flex; justify-content: center; align-items: center; font-size: 18px; }
+      .whotime { font-size: 2rem; margin: 0; }
+      .task-img {
+        width: 150px;
+        height: 150px;
+        border-radius: 10px;
+        object-fit: cover;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .row input, .row select {
+        flex: 1;
+        padding: 25px;
+        border-radius: 12px;
+        background-color: #f5f0e6;
+        border: none;
+        box-shadow: 2px 2px 10px #0000004d;
+        margin-bottom: 6px;
+        font-size: 1.3rem;
+      }
+      a {
+       font-size: 3rem;
+       margin-left: 40px;
+       padding-bottom: 30px;
+      }
+    </style>
+    <title>Capilendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fuzzy+Bubbles:wght@400;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="top">
+        <h1>Capilendar</h1>
+        <h3 id="date"></h3>
+      </div>
+      <div class="task-inputs">
+        <div class="row">
+          <input type="text" id="taskName" placeholder="Task name">
+          <select id="taskOwner">
+            <option value="1">Partner1_name</option>
+            <option value="2">Partner2_name</option>
+            <option value="3">Oba</option>
+          </select>
+        </div>
+        <div class="row">
+          <input type="date" id="taskDate">
+          <input type="time" id="taskTime">
+        </div>
+        <button onclick="addTask()">Add task</button>
+      </div>
+      <div class="tasks-container" id="tasks"></div>
+    </div>
+    <a href="https://docs.google.com/spreadsheets/d/16p9PoNqHANr2zWlDW6WG4VXh3cjGyAlvrxqbVrQcdw4/edit?gid=0#gid=0" target="_blank">Excel</a>
+    <script>
+      function formatGroupDate(dateString) {
+        var date = new Date(dateString);
+        var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        var dayName = days[date.getDay()];
+        var dd = date.getDate();
+        var mm = date.getMonth() + 1;
+        return `${dayName} ${dd}/${mm}`;
+      }
+      
+      function loadTasks() {
+        google.script.run.withSuccessHandler(function(groups) {
+          var html = "";
+          groups.forEach(function(group) {
+            html += `<div class='date-section'>`;
+            html += `<div class='date-title'>${formatGroupDate(group.date)}</div>`;
+            group.tasks.forEach(function(task) {
+              html += `<div class="task ${task.color}">
+                <div>
+                  <h4>${task.name}</h4>
+                  <p class="whotime">${task.owner == 1 ? "Partner1_name" : task.owner == 2 ? "Partner2_name" : "Oba"} - ${task.time}</p>
+                </div>`;
+              if (task.image) {
+                html += `<img class="task-img" src="${task.image}" alt="Task Image">`;
+              }
+              html += `</div>`;
+            });
+            html += `</div>`;
+          });
+          document.getElementById("tasks").innerHTML = html;
+        }).getTasks();
+      }
+      
+      window.onload = loadTasks;
+    </script>
+  </body>
+</html>
